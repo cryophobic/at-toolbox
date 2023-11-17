@@ -6,6 +6,18 @@ from utils import clear_screen
 import sys
 
 def get_user_selection(prompt, options):
+    """
+    Presents a menu to the user and gets their selection.
+
+    This function displays a prompt and a list of options to the user, then returns the user's choice.
+
+    Args:
+        prompt (str): The message to display to the user.
+        options (list): A list of options for the user to choose from.
+
+    Returns:
+        int: The index of the user's selection from the options list.
+    """
     while True:
         print(prompt)
         print()
@@ -21,16 +33,39 @@ def get_user_selection(prompt, options):
             print("Invalid input. Please enter a numeric value.")
 
 def display_workspaces(workspaces):
+    """
+    Displays a list of workspaces.
+
+    Args:
+        workspaces (list): A list of workspace dictionaries, each containing 'id' and 'name'.
+    """
     for ws in workspaces:
         print(f"{ws['id']}: {ws['name']}")
 
 def display_and_select(bases_or_tables, display_function):
+    """
+    Displays a list of bases or tables and allows the user to select one.
+
+    Args:
+        bases_or_tables (list): A list of bases or tables to display.
+        display_function (function): The function used to display the items.
+
+    Returns:
+        tuple: The selected item's ID and name.
+    """
     display_function(bases_or_tables)
     options = [f"{item['id']}: {item['name']}" for item in bases_or_tables]
     index = get_user_selection("Select from the above options:", options) - 1
     return bases_or_tables[index]['id'], bases_or_tables[index]['name']
 
 def create_new_base(automator, config):
+    """
+    Guides the user through the process of creating a new base.
+
+    Args:
+        automator (Toolbox): An instance of the Toolbox class for interacting with the API.
+        config (dict): Configuration settings, including workspaces.
+    """
     # Retrieve and select workspace from the configuration
     if 'workspaces' in config and config['workspaces']:
         workspace_id, workspace_name = display_and_select(config['workspaces'], display_workspaces)
@@ -61,6 +96,13 @@ def create_new_base(automator, config):
         print("Failed to create the base. Please check the details and try again.")
 
 def main_menu(automator, config):
+    """
+    Presents the main menu and handles user interaction for the initial options.
+
+    Args:
+        automator (Toolbox): An instance of the Toolbox class for API interactions.
+        config (dict): The configuration settings for the application.
+    """
     while True:
         clear_screen()
         choices = ["Create a new base", "Use a pre-existing base", "Exit"]
@@ -82,6 +124,13 @@ def main_menu(automator, config):
         input("Press Enter to continue...")
 
 def base_menu(automator, base_id):
+    """
+    Presents the base menu and handles user interactions for base-specific options.
+
+    Args:
+        automator (Toolbox): An instance of the Toolbox class for API interactions.
+        base_id (str): The ID of the selected base.
+    """
     while True:
         clear_screen()
         choices = ["Select a table", "Return to main menu", "Exit"]
@@ -103,11 +152,25 @@ def base_menu(automator, base_id):
             sys.exit()
 
 def display_tables(tables):
+    """
+    Displays a list of tables in a user-friendly format.
+
+    Args:
+        tables (list): A list of tables, each represented as a dictionary with 'name'.
+    """
     print("Available Tables:")
     for idx, table in enumerate(tables, start=1):
         print(f"{idx}. {table['name']}")
 
 def table_menu(automator, base_id, table_name):
+    """
+    Presents the table menu and handles user interactions for table-specific options.
+
+    Args:
+        automator (Toolbox): An instance of the Toolbox class for API interactions.
+        base_id (str): The ID of the base containing the table.
+        table_name (str): The name of the selected table.
+    """
     while True:
         clear_screen()
         choices = ["Duplicate to another base", "Return to main menu", "Exit"]
@@ -122,6 +185,14 @@ def table_menu(automator, base_id, table_name):
             sys.exit()
 
 def duplicate_table_to_another_base(automator, source_base_id, table_name):
+    """
+    Facilitates the process of duplicating a table to another base.
+
+    Args:
+        automator (Toolbox): An instance of the Toolbox class for API interactions.
+        source_base_id (str): The ID of the base containing the source table.
+        table_name (str): The name of the table to duplicate.
+    """
     print("Select a destination base for duplication:")
     bases = automator.list_existing_bases()
     if not bases:
@@ -149,6 +220,11 @@ def duplicate_table_to_another_base(automator, source_base_id, table_name):
         print(f"No records found in table '{table_name}' or failed to fetch records.")
 
 def main():
+    """
+    The main function that serves as the entry point of the utility.
+
+    This function orchestrates the overall workflow of the application, handling initialization, user interactions, and execution of main functionalities.
+    """
     config = load_config()
     automator = Toolbox(config['api_key'])
     #debugger = DebugHelper(config['api_key'])

@@ -1,6 +1,11 @@
 import os
 
 def display_welcome_message():
+    """
+    Displays a welcome message on the console.
+
+    This function prints a formatted welcome message, enhancing the user experience at the start of the application.
+    """
     print("""
 +---------------------------------------------+
 |🚀  SUPERCHARGE YOUR AIRTABLE EXPERIENCE!  🚀|
@@ -25,8 +30,12 @@ def display_welcome_message():
 +---------------------------------------------+
 """)
 
-""" Clears the console screen, works for Windows, Mac, and Linux. """
 def clear_screen():
+    """
+    Clears the console screen.
+
+    This function provides a way to clear the console screen to maintain a clean user interface. It's system independent, working on both Windows and Unix systems.
+    """
     # For Windows
     if os.name == 'nt':  # Windows
         os.system('cls')

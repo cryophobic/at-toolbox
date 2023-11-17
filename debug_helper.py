@@ -1,35 +1,49 @@
-# debug_helper.py
-
 import json
 import requests
 
 class DebugHelper:
+    """
+    Provides debugging tools for API interactions.
+
+    This class assists in debugging by offering methods for logging and handling API request responses.
+
+    Attributes:
+        api_key (str): The API key used for authenticating with the Airtable API.
+        headers (dict): Headers to be used in API requests.
+    """
+
     def __init__(self, api_key):
+        """
+        Initializes the DebugHelper with the given API key.
+
+        Args:
+            api_key (str): The API key used for authenticating with the Airtable API.
+        """
         self.api_key = api_key
         self.headers = {
             'Authorization': f'Bearer {self.api_key}',
-            'Content-Type': 'application/json'
         }
 
-    def pretty_print_json(self, data):
-        print(json.dumps(data, indent=4, sort_keys=True))
-
-    def log_request(self, method, url, headers=None, data=None):
-        print(f"Request Method: {method}")
-        print(f"Request URL: {url}")
-        print(f"Request Headers: {headers}")
-        if data:
-            print(f"Request Body: {json.dumps(data, indent=4)}")
-
     def log_response(self, response):
-        print(f"Response Status Code: {response.status_code}")
-        print(f"Response Headers: {response.headers}")
-        print(f"Response Body: {response.text}")
+        """
+        Logs the response from an API request.
 
-    def make_debug_api_request(self, method, url, data=None):
-        self.log_request(method, url, self.headers, data)
-        response = requests.request(method, url, headers=self.headers, json=data)
-        self.log_response(response)
-        return response
+        This method is used for logging the details of API responses, particularly useful for debugging.
 
-    # ... Add any other debugging methods you find useful
+        Args:
+            response (requests.Response): The response object from an API request.
+        """
+        print(f"Response Code: {response.status_code}")
+        print(f"Response Body: {response.json()}")
+
+    def handle_api_error(self, response):
+        """
+        Handles errors from API requests.
+
+        This method provides a structured way to handle and log errors that occur during API requests.
+
+        Args:
+            response (requests.Response): The response object from an API request.
+        """
+        # Implementation for error handling
+        # ...

@@ -67,25 +67,25 @@ class Toolbox:
         Returns:
             dict: The response from the API containing details of the created base, or None if an error occurred.
         """
-            default_table_structure = [{
-                "name": "Table1",
-                "fields": [
-                    {"name": "Field1", "type": "singleLineText"},
-                    {"name": "Field2", "type": "singleLineText"}
-                ]
-            }]
-            data = {
-                "name": base_name,
-                "tables": default_table_structure,  # This structure needs to match the API requirements
-                "workspaceId": workspace_id
-            }
-            response = self._make_api_request("POST", "meta/bases", data)
-            if response and 'id' in response:
-                return response
-            else:
-                error_info = response.json() if response else "No response"
-                print(f"Failed to create the base: {error_info}")
-                return None
+        default_table_structure = [{
+            "name": "Table1",
+            "fields": [
+                {"name": "Field1", "type": "singleLineText"},
+                {"name": "Field2", "type": "singleLineText"}
+            ]
+        }]
+        data = {
+            "name": base_name,
+            "tables": default_table_structure,  # This structure needs to match the API requirements
+            "workspaceId": workspace_id
+        }
+        response = self._make_api_request("POST", "meta/bases", data)
+        if response and 'id' in response:
+            return response
+        else:
+            error_info = response.json() if response else "No response"
+            print(f"Failed to create the base: {error_info}")
+            return None
 
     def list_existing_bases(self):
         """
