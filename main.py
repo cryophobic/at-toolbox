@@ -42,21 +42,27 @@ def display_workspaces(workspaces):
     for ws in workspaces:
         print(f"{ws['id']}: {ws['name']}")
 
-def display_and_select(bases_or_tables, display_function):
+def display_and_select(items, format_function):
     """
-    Displays a list of bases or tables and allows the user to select one.
+    Displays a list of items (bases, tables, etc.) and allows the user to select one.
 
     Args:
-        bases_or_tables (list): A list of bases or tables to display.
-        display_function (function): The function used to display the items.
+        items (list): A list of items to display and choose from.
+        format_function (function): Function to format the display of each item.
 
     Returns:
-        tuple: The selected item's ID and name.
+        tuple: The selected item's ID and name, or (None, None) if no items.
     """
-    display_function(bases_or_tables)
-    options = [f"{item['id']}: {item['name']}" for item in bases_or_tables]
+    if not items:
+        print("No items available.")
+        return None, None
+
+    for idx, item in enumerate(items, start=1):
+        print(f"{idx}. {format_function(item)}")
+
+    options = [format_function(item) for item in items]
     index = get_user_selection("Select from the above options:", options) - 1
-    return bases_or_tables[index]['id'], bases_or_tables[index]['name']
+    return items[index]['id'], items[index]['name']
 
 def create_new_base(automator, config):
     """
@@ -68,11 +74,14 @@ def create_new_base(automator, config):
     """
     # Retrieve and select workspace from the configuration
     if 'workspaces' in config and config['workspaces']:
-        workspace_id, workspace_name = display_and_select(config['workspaces'], display_workspaces)
+        workspace_id, workspace_name = display_and_select(config['workspaces'], lambda workspace: f"{workspace['id']}: {workspace['name']}")
         print(f"Selected workspace: {workspace_name}")
     else:
         print("No workspaces configured.")
         return
+
+    # Fetch the list of existing bases
+    bases = automator.list_existing_bases()
 
     # Existing logic for base name input
     base_name = input("Enter the name of the new base: ")
@@ -113,7 +122,7 @@ def main_menu(automator, config):
         elif choice == 2:
             bases = automator.list_existing_bases()
             if bases:
-                base_id, _ = display_and_select(bases, automator.display_existing_bases)
+                base_id, _ = display_and_select(bases, lambda base: f"{base['id']}: {base['name']}")
                 clear_screen()
                 base_menu(automator, base_id)
             else:
@@ -199,7 +208,7 @@ def duplicate_table_to_another_base(automator, source_base_id, table_name):
         print("No available bases to select as a destination.")
         return
 
-    destination_base_id, _ = display_and_select(bases, automator.display_existing_bases)
+    destination_base_id = display_and_select(bases, lambda base: f"{base['id']}: {base['name']}")
     tables = automator.get_tables(source_base_id)
     structure = next((table for table in tables if table["name"] == table_name), None)
     if not structure:
