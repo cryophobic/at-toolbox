@@ -73,9 +73,16 @@ def create_new_base(automator, config):
         config (dict): Configuration settings, including workspaces.
     """
     # Retrieve and select workspace from the configuration
-    if 'workspaces' in config and config['workspaces']:
-        workspace_id, workspace_name = display_and_select(config['workspaces'], lambda workspace: f"{workspace['id']}: {workspace['name']}")
-        print(f"Selected workspace: {workspace_name}")
+    workspaces = config.get('workspaces', [])
+    if len(workspaces) == 1:
+        workspace_id, workspace_name = workspaces[0]['id'], workspaces[0]['name']
+        clear_screen()
+        print(f"Workspace: {workspace_name}")
+        print()
+    elif len(workspaces) > 1:
+        workspace_id, workspace_name = display_and_select(workspaces, lambda workspace: workspace['name'])
+        print(f"Workspace: {workspace_name}")
+        print()
     else:
         print("No workspaces configured.")
         return
@@ -85,31 +92,45 @@ def create_new_base(automator, config):
 
     # Existing logic for base name input
     base_name = input("Enter the name of the new base: ")
+    clear_screen()
     # Example of adding a default table structure
     # This can be replaced or expanded based on user input or specific requirements
     if not base_name:
+        print(f"Workspace: {workspace_name}")
+        print()
         print("Base name cannot be empty.")
         return
 
     # User confirmation before creation
+    print(f"Workspace: {workspace_name}")
+    print()   
     confirmation = input(f"Are you sure you want to create a new base named '{base_name}' in '{workspace_name}'? (y/n): ")
+    clear_screen()
     if confirmation.lower() != 'y':
         print("Base creation cancelled.")
+        print()
         return
 
     # Call the function to create the new base
     base_response = automator.create_base(base_name, workspace_id)
     if base_response:
+        print(f"Workspace: {workspace_name}")
+        print()
         print(f"Successfully created base with ID: {base_response['id']}")
+        print()
     else:
+        print(f"Workspace: {workspace_name}")
+        print()
         print("Failed to create the base. Please check the details and try again.")
+        print()
 
-def main_menu(automator, config):
+def main_menu(automator, bases, config):
     """
     Presents the main menu and handles user interaction for the initial options.
 
     Args:
         automator (Toolbox): An instance of the Toolbox class for API interactions.
+        bases (list): A list of existing bases.
         config (dict): The configuration settings for the application.
     """
     while True:
@@ -120,15 +141,21 @@ def main_menu(automator, config):
         if choice == 1:
             create_new_base(automator, config)
         elif choice == 2:
-            bases = automator.list_existing_bases()
             if bases:
-                base_id, _ = display_and_select(bases, lambda base: f"{base['id']}: {base['name']}")
-                clear_screen()
-                base_menu(automator, base_id)
+                base_name = display_and_select(bases, lambda base: base['name'])
+                if base_name:
+                    base_id = next((base['id'] for base in bases if base['name'] == base_name), None)
+                    clear_screen()
+                    base_menu(automator, base_id)
+                else:
+                    print("Invalid base selection.")
             else:
                 print("No existing bases available.")
         elif choice == 3:
+            print()
+            clear_screen()
             print("Goodbye!")
+
             break
         input("Press Enter to continue...")
 
@@ -161,6 +188,8 @@ def base_menu(automator, base_id):
         elif choice == 2:
             return
         elif choice == 3:
+            clear_screen()
+            print()
             print("Goodbye!")
             sys.exit()
 
@@ -303,11 +332,12 @@ def main():
     # Use the debugger to make an API request and log the details:
     #response = debugger.make_debug_api_request("POST", "https://api.airtable.com/v0/meta/bases", data=data)
 
+    bases = automator.list_existing_bases()  # Fetch the list of existing bases
     display_welcome_message()
     print()
     input("Press Enter to continue...")  # This line ensures the welcome message stays until the user proceeds
     clear_screen()  # Optional: clear the screen after the user presses Enter
-    main_menu(automator, config)
+    main_menu(automator, bases, config)  # Pass the list of bases to the main_menu function
 
 if __name__ == "__main__":
     main()

@@ -113,7 +113,7 @@ class Toolbox:
         print("Your Authorized Bases:")
         print("")
         for idx, base in enumerate(bases, start=1):
-            print(f"{idx}. {base['name']} (ID: {base['id']})")
+            print(f"{idx}. {base['name']}")
 
     def select_existing_base(self, bases):
         """
@@ -152,14 +152,14 @@ class Toolbox:
         if response and 'tables' in response:
             tables = response['tables']
             if tables:
-                return [{"id": table["id"], "name": table["name"]} for table in tables]
+                return tables  # Return the list of tables directly
             else:
                 print("No tables found in this base.")
                 return None
         else:
             print(f"Error fetching tables.")
-            return None    
-
+            return None
+    
     def get_tables(self, base_id):
         """
         Fetches tables and their structure from a specified base.
