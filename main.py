@@ -143,17 +143,21 @@ def base_menu(automator, base_id):
     while True:
         clear_screen()
         choices = ["Select a table", "Return to main menu", "Exit"]
-        choice = get_user_selection("", choices)
+        choice = get_user_selection(f"'{base_id}' Base Menu:", choices)
 
         if choice == 1:
             tables = automator.list_tables_in_base(base_id)
             if tables:
-                _, table_name = display_and_select(tables, display_tables)
-                clear_screen()
-                table_menu(automator, base_id, table_name)
+                display_tables(tables)
+                table_name = select_table(tables)
+                if table_name:
+                    clear_screen()
+                    table_menu(automator, base_id, table_name)
+                else:
+                    print("Invalid table selection.")
             else:
                 print("No tables available to select.")
-                input("Press Enter to continue...")
+            input("Press Enter to continue...")
         elif choice == 2:
             return
         elif choice == 3:
@@ -167,9 +171,35 @@ def display_tables(tables):
     Args:
         tables (list): A list of tables, each represented as a dictionary with 'name'.
     """
-    print("Available Tables:")
-    for idx, table in enumerate(tables, start=1):
-        print(f"{idx}. {table['name']}")
+    if not tables:
+        print("No tables available.")
+    else:
+        print("Available Tables:")
+        for idx, table in enumerate(tables, start=1):
+            print(f"{idx}. {table['name']}")
+
+def select_table(tables):
+    """
+    Allows the user to select a table from a list.
+
+    Args:
+        tables (list): A list of tables, each represented as a dictionary.
+
+    Returns:
+        str: The name of the selected table, or None if the selection is invalid.
+    """
+    if not tables:
+        return None
+
+    while True:
+        try:
+            choice = int(input("Enter the numeric value of the table you would like to select: "))
+            if choice in range(1, len(tables) + 1):
+                return tables[choice - 1]["name"]
+            else:
+                print("Invalid selection. Please enter a numeric value within the list range.")
+        except ValueError:
+            print("Invalid input. Please enter a numeric value.")
 
 def table_menu(automator, base_id, table_name):
     """
